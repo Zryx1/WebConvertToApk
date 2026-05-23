@@ -1,170 +1,59 @@
-import { useState } from 'react'
-import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
-
-export default function App() {
-  const [appName, setAppName] = useState('MyApp')
-  const [packageName, setPackageName] = useState('com.example.myapp')
-
-  async function generateProject() {
-    const zip = new JSZip()
-
-    const www = zip.folder('www')
-
-    www.file(
-      'index.html',
-      `<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${appName}</title>
+<title>Web To APK Builder</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="container">
-<h1>${appName}</h1>
-<p id="text">Cordova APK Ready</p>
-<button onclick="test()">Click Me</button>
+<h1>Web To APK Builder</h1>
+
+<div class="card">
+<label>Nama Aplikasi</label>
+<input type="text" placeholder="Contoh: MyApp">
+
+<label>Package Name</label>
+<input type="text" placeholder="com.example.myapp">
+
+<label>Website URL</label>
+<input type="text" placeholder="https://example.com">
 </div>
-<script src="script.js"></script>
-</body>
-</html>`
-    )
 
-    www.file(
-      'style.css',
-      `body{
-margin:0;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:#111;
-color:white;
-font-family:Arial;
-}
-.container{text-align:center;}
-button{
-padding:12px 20px;
-border:none;
-border-radius:10px;
-}`
-    )
+<div class="card">
+<h2>Izin Aplikasi</h2>
 
-    www.file(
-      'script.js',
-      `function test(){
-document.getElementById('text').innerText='JavaScript Works!';
-alert('APK berhasil dibuat!');
-}`
-    )
+<label><input type="checkbox"> Kamera</label>
+<label><input type="checkbox"> Mikrofon</label>
+<label><input type="checkbox"> Lokasi</label>
+<label><input type="checkbox"> Penyimpanan</label>
+<label><input type="checkbox"> Download File</label>
+<label><input type="checkbox"> Cookies</label>
+</div>
 
-    zip.file(
-      'config.xml',
-      `<?xml version='1.0' encoding='utf-8'?>
-<widget id="${packageName}" version="1.0.0"
-xmlns="http://www.w3.org/ns/widgets"
-xmlns:cdv="http://cordova.apache.org/ns/1.0">
-<name>${appName}</name>
-<content src="index.html" />
-<allow-navigation href="*" />
-<access origin="*" />
-<preference name="AndroidXEnabled" value="true" />
-</widget>`
-    )
+<div class="card">
+<h2>Upload Icon</h2>
+<input type="file" accept="image/*">
+</div>
 
-    zip.file(
-      'package.json',
-      JSON.stringify(
-        {
-          name: appName.toLowerCase(),
-          displayName: appName,
-          version: '1.0.0',
-        },
-        null,
-        2
-      )
-    )
+<div class="card">
+<button>Generate Project</button>
+</div>
 
-    zip.file(
-      'build.sh',
-      `#!/data/data/com.termux/files/usr/bin/bash
-
-clear
-
-echo "=============================="
-echo " Cordova Auto APK Builder"
-echo "=============================="
-
+<div class="card">
+<h2>Perintah Termux</h2>
+<pre>
 pkg update -y
-pkg install nodejs openjdk-17 git -y
-
+pkg install nodejs openjdk-17 git unzip -y
 npm install -g cordova
 
-cd "$(dirname "$0")"
+bash build.sh
+</pre>
+</div>
 
-cordova platform add android
+</div>
 
-cordova build android
-
-echo "=============================="
-echo " BUILD SELESAI"
-echo "=============================="
-
-echo "APK:"
-echo "platforms/android/app/build/outputs/apk/debug/app-debug.apk"`
-    )
-
-    const content = await zip.generateAsync({ type: 'blob' })
-    saveAs(content, `${appName}_Cordova_Project.zip`)
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Cordova Project Generator</h1>
-          <p className="text-gray-500 mt-2">
-            Generate Cordova APK project ready for Termux.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="App Name"
-            value={appName}
-            onChange={(e) => setAppName(e.target.value)}
-            className="w-full border rounded-2xl p-4"
-          />
-
-          <input
-            type="text"
-            placeholder="Package Name"
-            value={packageName}
-            onChange={(e) => setPackageName(e.target.value)}
-            className="w-full border rounded-2xl p-4"
-          />
-        </div>
-
-        <button
-          onClick={generateProject}
-          className="w-full bg-black text-white rounded-2xl py-4 text-lg font-bold hover:scale-[1.02] transition"
-        >
-          Generate ZIP Project
-        </button>
-
-        <div className="bg-gray-100 rounded-2xl p-4 text-sm">
-          <p className="font-bold mb-2">Cara Pakai di Termux:</p>
-          <ol className="list-decimal ml-5 space-y-1">
-            <li>Extract ZIP</li>
-            <li>Masuk folder project</li>
-            <li>Run chmod +x build.sh</li>
-            <li>Run ./build.sh</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  )
-}
+</body>
+</html>
